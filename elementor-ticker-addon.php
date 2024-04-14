@@ -10,6 +10,7 @@
  * Requires Plugins: elementor
  * Elementor tested up to: 3.20.0
  * Elementor Pro tested up to: 3.20.0
+ * Credits: https://github.com/IndigoUnited/jquery.simplemarquee
  */
 
 if (!defined('ABSPATH')) {
