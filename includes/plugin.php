@@ -203,7 +203,7 @@ final class Plugin
   {
 
     add_action('elementor/widgets/register', [$this, 'register_widgets']);
-    add_action('elementor/controls/register', [$this, 'register_controls']);
+    add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
   }
 
   /**
@@ -223,21 +223,9 @@ final class Plugin
     $widgets_manager->register(new Ticker_Widget());
   }
 
-  /**
-   * Register Controls
-   *
-   * Load controls files and register new Elementor controls.
-   *
-   * Fired by `elementor/controls/register` action hook.
-   *
-   * @param \Elementor\Controls_Manager $controls_manager Elementor controls manager.
-   */
-  // FIXME
-  public function register_controls($controls_manager)
+  public function enqueue_scripts()
   {
-
-    // require_once(__DIR__ . '/controls/control-1.php');
-
-    // $controls_manager->register(new Control_1());
+    wp_register_script('ticker',  plugins_url('assets/js/jquery.simplemarquee.js', dirname(__FILE__)), ['jquery'], false, true);
+    wp_register_script('ticker-init',  plugins_url('assets/js/ticker-init.js', dirname(__FILE__)), ['jquery'], false, true);
   }
 }
