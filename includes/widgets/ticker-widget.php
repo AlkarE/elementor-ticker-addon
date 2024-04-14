@@ -112,12 +112,48 @@ class Ticker_Widget extends \Elementor\Widget_Base
         'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
       ]
     );
+
+    // $this->add_control(
+    //   'words',
+    //   [
+    //     'label' => __('Ticker Words', 'text-domain'),
+    //     'type' => \Elementor\Controls_Manager::TEXTAREA,
+    //     'placeholder' => __('Enter words separated by commas', 'ticker-addon'),
+    //   ]
+    // );
+
+    $repeater = new \Elementor\Repeater();
+    $repeater->add_control(
+      'text',
+      [
+        'label' => __('Word', 'ticker-addon'),
+        'type' => \Elementor\Controls_Manager::TEXT,
+        'placeholder' => __('Ticker Item', 'ticker-addon'),
+        'default' => __('Ticker Item', 'ticker-addon'),
+        'label_block' => true,
+        'dynamic' => [
+          'active' => true,
+        ]
+      ]
+    );
+
     $this->add_control(
       'words',
       [
-        'label' => __('Ticker Words', 'text-domain'),
-        'type' => \Elementor\Controls_Manager::TEXTAREA,
-        'placeholder' => __('Enter words separated by commas', 'ticker-addon'),
+        'label' => __('Ticker words', 'ticker-addon'),
+        'type' => \Elementor\Controls_Manager::REPEATER,
+        'fields' => $repeater->get_controls(),
+        'default' => [
+          [
+            'text' => __('Ticker item #1', 'ticker-addon'),
+          ],
+          [
+            'text' => __('Ticker item #2', 'ticker-addon'),
+          ],
+          [
+            'text' => __('Ticker item #3', 'ticker-addon'),
+          ],
+        ],
       ]
     );
 
@@ -268,12 +304,12 @@ class Ticker_Widget extends \Elementor\Widget_Base
   {
     $settings = $this->get_settings_for_display();
     $icon_html = !empty($settings['icon']['value']) ? '<i class="' . esc_attr($settings['icon']['value']) . '"></i>' : '';
-    $words = explode("|", $settings['words']);
+    $words = $settings['words'];
     $last_index = count($words) - 1;
     if (!empty($words)) :;
       $out = '<div class="ticker" data-speed="' . esc_attr($settings['speed']['size']) . '" data-direction="' . esc_attr($settings['direction']) . '">';
       foreach ($words as $index => $word) {
-        $out .= trim($word);
+        $out .= trim($word['text']);
         if (!empty($icon_html) && $index < $last_index) {
           $out .= "<span class='ticker-icon'>$icon_html</span>";
         }
@@ -297,9 +333,9 @@ class Ticker_Widget extends \Elementor\Widget_Base
 ?>
     <# const icon_html=settings.icon.value ? '<i class="' + settings.icon.value + '"></i>' : '' ; #>
       <div class="ticker" data-speed="{{ settings.speed.size }}" data-direction="{{ settings.direction }}">
-        <# _.each(settings.words.split('|'), function(word, index){ #>
-          {{{ word.trim() }}}
-          <# if (icon_html && index < settings.words.split("|").length - 1) { #>
+        <# _.each(settings.words, function(word, index){ #>
+          {{{ word.text.trim() }}}
+          <# if (icon_html && index < settings.words.length - 1) { #>
             <span class="ticker-icon">{{{ icon_html }}}</span>
             <# } #>
               <# }); #>
