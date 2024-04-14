@@ -36,7 +36,6 @@ class Ticker_Control extends \Elementor\Base_Data_Control
 
     // Scripts
     wp_register_script('ticker',  plugins_url('/assets/js/jquery.simplemarquee.js'), ['jquery']);
-    // wp_register_script('emojionearea-control', plugins_url('/assets/js/emojionearea.js', dirname(__FILE__)), ['emojionearea'], '1.0.0');
     wp_enqueue_script('ticker');
   }
 
