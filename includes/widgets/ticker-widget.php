@@ -121,16 +121,24 @@ class Ticker_Widget extends \Elementor\Widget_Base
       ]
     );
 
-
-
-    $this->end_controls_section();
-
-    $this->start_controls_section(
-      'marker_section',
+    $this->add_control(
+      'speed',
       [
-        'label' => esc_html__('Marker', 'ticker-addon'),
-        'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-      ]
+        'label' => __('Ticker speed', 'ticker-adddon'),
+        'type' => \Elementor\Controls_Manager::SLIDER,
+        'description' => __('The speed in pixels per second', 'ticker_addon'),
+        'size_units' => [], // Remove units
+        'range' => [
+          'px' => [
+            'min' => 1,
+            'max' => 500,
+          ],
+        ],
+        'default' => [
+          'unit' => '', // No units
+          'size' => 100, // Default speed
+        ],
+      ],
     );
 
     $this->add_control(
@@ -159,12 +167,37 @@ class Ticker_Widget extends \Elementor\Widget_Base
     $this->add_control(
       'ticker_size',
       [
-        'label' => __('Ticker Size', 'text-domain'),
+        'label' => __('Ticker Size', 'ticker-addon'),
         'type' => \Elementor\Controls_Manager::SLIDER,
         'size_units' => ['px', 'em', 'rem'],
         'selectors' => [
           '{{WRAPPER}} .ticker' => 'font-size: {{SIZE}}{{UNIT}};',
         ],
+      ]
+    );
+
+    $this->add_control(
+      'ticker_padding',
+      [
+        'label' => __('Ticker item space', 'ticker-addon'),
+        'type' => \Elementor\Controls_Manager::SLIDER,
+        'size_units' => ['px'],
+        'selectors' => [
+          '{{WRAPPER}} .ticker .ticker-icon' => 'padding-left: {{SIZE}}{{UNIT}};padding-right: {{SIZE}}{{UNIT}};',
+        ],
+      ]
+    );
+
+    $this->add_control(
+      'direction',
+      [
+        'label' => __('Direction', 'text-domain'),
+        'type' => \Elementor\Controls_Manager::SELECT,
+        'options' => [
+          'left' => __('Left', 'ticker-addon'),
+          'right' => __('Right', 'ticker-addon'),
+        ],
+        'default' => 'left',
       ]
     );
 
@@ -199,7 +232,7 @@ class Ticker_Widget extends \Elementor\Widget_Base
         'label' => __('Icon Color', 'text-domain'),
         'type' => \Elementor\Controls_Manager::COLOR,
         'selectors' => [
-          '{{WRAPPER}} .ticker .icon' => 'color: {{VALUE}};',
+          '{{WRAPPER}} .ticker .ticker-icon' => 'color: {{VALUE}};',
         ],
       ]
     );
@@ -210,12 +243,17 @@ class Ticker_Widget extends \Elementor\Widget_Base
         'type' => \Elementor\Controls_Manager::SLIDER,
         'size_units' => ['px', 'em', 'rem'],
         'selectors' => [
-          '{{WRAPPER}} .ticker .icon' => 'font-size: {{SIZE}}{{UNIT}};',
+          '{{WRAPPER}} .ticker .ticker-icon' => 'font-size: {{SIZE}}{{UNIT}};',
         ],
       ]
     );
 
     $this->end_controls_section();
+  }
+
+  public function get_script_depends()
+  {
+    return ['ticker', 'ticker-init'];
   }
 
   /**
@@ -230,18 +268,19 @@ class Ticker_Widget extends \Elementor\Widget_Base
   {
     $settings = $this->get_settings_for_display();
     $icon_html = !empty($settings['icon']['value']) ? '<i class="' . esc_attr($settings['icon']['value']) . '"></i>' : '';
-    $words = explode(' ', $settings['words']);
+    $words = explode("|", $settings['words']);
     $last_index = count($words) - 1;
     if (!empty($words)) :;
-      $out = '<div class="ticker">';
+      $out = '<div class="ticker" data-speed="' . esc_attr($settings['speed']['size']) . '" data-direction="' . esc_attr($settings['direction']) . '">';
       foreach ($words as $index => $word) {
         $out .= trim($word);
         if (!empty($icon_html) && $index < $last_index) {
-          $out .= "<span class='icon'>$icon_html</span>";
+          $out .= "<span class='ticker-icon'>$icon_html</span>";
         }
       }
       $out .= '</div>';
       echo $out;
+
     endif;
   }
 
@@ -257,13 +296,13 @@ class Ticker_Widget extends \Elementor\Widget_Base
   {
 ?>
     <# const icon_html=settings.icon.value ? '<i class="' + settings.icon.value + '"></i>' : '' ; #>
-      <div class="ticker">
-        <# _.each(settings.words.split(' '), function(word, index){ #>
+      <div class="ticker" data-speed="{{ settings.speed.size }}" data-direction="{{ settings.direction }}">
+        <# _.each(settings.words.split('|'), function(word, index){ #>
           {{{ word.trim() }}}
-          <# if (icon_html && index < settings.words.split(' ').length - 1) { #>
-            <span class="icon">{{{ icon_html }}}</span>
+          <# if (icon_html && index < settings.words.split("|").length - 1) { #>
+            <span class="ticker-icon">{{{ icon_html }}}</span>
             <# } #>
-          <# }); #>
+              <# }); #>
 
       </div>
   <?php
