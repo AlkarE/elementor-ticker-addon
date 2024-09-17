@@ -113,14 +113,6 @@ class Ticker_Widget extends \Elementor\Widget_Base
       ]
     );
 
-    // $this->add_control(
-    //   'words',
-    //   [
-    //     'label' => __('Ticker Words', 'text-domain'),
-    //     'type' => \Elementor\Controls_Manager::TEXTAREA,
-    //     'placeholder' => __('Enter words separated by commas', 'ticker-addon'),
-    //   ]
-    // );
 
     $repeater = new \Elementor\Repeater();
     $repeater->add_control(
@@ -137,6 +129,23 @@ class Ticker_Widget extends \Elementor\Widget_Base
       ]
     );
 
+    // Add link control
+    $repeater->add_control(
+      'link',
+      [
+        'label' => __('Link', 'ticker-addon'),
+        'type' => \Elementor\Controls_Manager::URL,
+        'placeholder' => __('https://your-link.com', 'ticker-addon'),
+        'default' => [
+          'url' => '',
+        ],
+        'label_block' => true,
+        'dynamic' => [
+          'active' => true,
+        ],
+      ]
+    );
+
     $this->add_control(
       'words',
       [
@@ -146,12 +155,15 @@ class Ticker_Widget extends \Elementor\Widget_Base
         'default' => [
           [
             'text' => __('Ticker item #1', 'ticker-addon'),
+            'link' => ['url' => 'https://example.com'],
           ],
           [
             'text' => __('Ticker item #2', 'ticker-addon'),
+            'link' => ['url' => 'https://example.com'],
           ],
           [
             'text' => __('Ticker item #3', 'ticker-addon'),
+            'link' => ['url' => 'https://example.com'],
           ],
         ],
       ]
@@ -305,19 +317,33 @@ class Ticker_Widget extends \Elementor\Widget_Base
     $settings = $this->get_settings_for_display();
     $icon_html = !empty($settings['icon']['value']) ? '<i class="' . esc_attr($settings['icon']['value']) . '"></i>' : '';
     $words = $settings['words'];
+    // echo '<pre>';
+    // print_r($words);
+    // echo '</pre>';
     $last_index = count($words) - 1;
     if (!empty($words)) :;
       $out = '<div class="ticker" data-speed="' . esc_attr($settings['speed']['size']) . '" data-direction="' . esc_attr($settings['direction']) . '">';
-      foreach ($words as $index => $word) {
-        $out .= trim($word['text']);
+
+      foreach ($words as $index => $item) {
+        // Ensure the link is set
+        $link = isset($item['link']['url']) ? $item['link']['url'] : '#';
+
+        // Link attributes
+        $target = !empty($item['link']['is_external']) ? ' target="_blank"' : '';
+        $nofollow = !empty($item['link']['nofollow']) ? ' rel="nofollow"' : '';
+
+        $out .= '<span class="ticker-item">';
+        $out .= '<a href="' . esc_url($link) . '"' . $target . $nofollow . '>';
+        $out .= esc_html(trim($item['text']));
+        $out .= '</a></span>';
         if (!empty($icon_html) && $index < $last_index) {
           $out .= "<span class='ticker-icon'>$icon_html</span>";
         }
       }
       $out .= '</div>';
-      echo $out;
 
     endif;
+    echo $out;
   }
 
   /**
